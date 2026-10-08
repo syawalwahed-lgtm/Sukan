@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistem Sukan SK (P) Jalan Yahya Awal</title>
+<style>
+:root{--primary:#14532d;--secondary:#16a34a;--light:#f0fdf4;--dark:#163020;--muted:#64748b;--card:#fff;--border:#e2e8f0}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f8fafc;color:#0f172a}
+header{background:linear-gradient(135deg,#14532d,#16a34a);color:#fff;padding:22px 28px;position:sticky;top:0;z-index:5;box-shadow:0 3px 12px #0002}
+header h1{margin:0;font-size:24px}header p{margin:5px 0 0;opacity:.9}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:87px;z-index:4}
+nav button{border:0;background:#f1f5f9;padding:10px 13px;border-radius:9px;cursor:pointer;font-weight:600;color:#334155}
+nav button.active,nav button:hover{background:var(--primary);color:#fff}
+main{max-width:1250px;margin:auto;padding:24px}.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 2px 8px #0f172a08}
+.stat b{font-size:30px;color:var(--primary);display:block}.stat span{color:var(--muted)}
+h2{margin-top:0}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+input,select{padding:10px;border:1px solid #cbd5e1;border-radius:8px;width:100%;background:#fff}label{font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:5px}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.full{grid-column:1/-1}
+button.primary{background:var(--primary);color:#fff;border:0;padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:700}
+button.danger{background:#dc2626;color:#fff;border:0;padding:7px 10px;border-radius:7px;cursor:pointer}
+button.small{padding:7px 10px;border:0;border-radius:7px;cursor:pointer;background:#e2e8f0}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--border);font-size:14px}th{background:#f1f5f9;color:#334155}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:12px;font-weight:700}
+.empty{padding:30px;text-align:center;color:var(--muted)}.notice{padding:12px;border-radius:9px;background:#ecfdf5;color:#166534;margin-bottom:15px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+footer{text-align:center;padding:25px;color:#64748b;font-size:13px}
+@media(max-width:650px){main{padding:14px}nav{top:84px;padding:8px}nav button{font-size:12px;padding:8px}header{padding:18px}}
+</style>
+</head>
+<body>
+<header><h1>🏆 Sistem Pengurusan Sukan</h1><p>SK (P) Jalan Yahya Awal</p></header>
+<nav id="nav">
+<button data-page="dashboard">Dashboard</button><button data-page="peserta">Pendaftaran Peserta</button>
+<button data-page="acara">Acara</button><button data-page="keputusan">Keputusan</button>
+<button data-page="rumah">Rumah Sukan</button><button data-page="laporan">Laporan</button>
+</nav>
+<main>
+<section id="dashboard" class="page">
+<h2>Dashboard</h2><div class="grid" id="stats"></div>
+<div class="card" style="margin-top:16px"><h3>Kedudukan Rumah Sukan</h3><div id="dashRanking"></div></div>
+</section>
+
+<section id="peserta" class="page">
+<h2>Pendaftaran Peserta</h2>
+<div class="card">
+<div class="formgrid">
+<div><label>Nama Peserta</label><input id="pNama" placeholder="Nama penuh"></div>
+<div><label>ID Murid</label><input id="pId" placeholder="Contoh: M001"></div>
+<div><label>Tahun / Kelas</label><input id="pKelas" placeholder="Contoh: 6 Bestari"></div>
+<div><label>Jantina</label><select id="pJantina"><option>Perempuan</option><option>Lelaki</option></select></div>
+<div><label>Rumah Sukan</label><select id="pRumah"></select></div>
+<div><label>Acara</label><select id="pAcara"></select></div>
+<div class="full"><button class="primary" onclick="addParticipant()">＋ Daftar Peserta</button></div>
+</div></div>
+<div class="card" style="margin-top:16px"><div class="toolbar"><input id="searchP" oninput="renderParticipants()" placeholder="Cari nama / ID / kelas..."></div><div id="participantTable"></div></div>
+</section>
+
+<section id="acara" class="page">
+<h2>Pengurusan Acara</h2>
+<div class="card"><div class="formgrid">
+<div><label>Kod Acara</label><input id="aKod" placeholder="100M-P"></div>
+<div><label>Nama Acara</label><input id="aNama" placeholder="100 Meter Perempuan"></div>
+<div><label>Kategori</label><input id="aKategori" placeholder="Tahun 4-6"></div>
+<div><label>Jenis</label><select id="aJenis"><option>Balapan</option><option>Padang</option><option>Sukaneka</option></select></div>
+<div class="full"><button class="primary" onclick="addEvent()">＋ Tambah Acara</button></div>
+</div></div>
+<div class="card" style="margin-top:16px"><div id="eventTable"></div></div>
+</section>
+
+<section id="keputusan" class="page">
+<h2>Keputusan & Pemenang</h2>
+<div class="card"><div class="formgrid">
+<div><label>Acara</label><select id="rAcara"></select></div>
+<div><label>Peserta</label><select id="rPeserta"></select></div>
+<div><label>Tempat</label><select id="rTempat"><option value="1">🥇 1</option><option value="2">🥈 2</option><option value="3">🥉 3</option></select></div>
+<div><label>Catatan / Masa / Jarak</label><input id="rCatatan" placeholder="Contoh: 15.42s"></div>
+<div class="full"><button class="primary" onclick="addResult()">Simpan Keputusan</button></div>
+</div></div>
+<div class="card" style="margin-top:16px"><div id="resultTable"></div></div>
+</section>
+
+<section id="rumah" class="page">
+<h2>Rumah Sukan</h2>
+<div class="card"><div class="formgrid">
+<div><label>Nama Rumah</label><input id="rNama" placeholder="Rumah Hijau"></div>
+<div><label>Mata Permulaan</label><input id="rMata" type="number" value="0"></div>
+<div><label>&nbsp;</label><button class="primary" onclick="addHouse()">＋ Tambah Rumah</button></div>
+</div></div>
+<div class="card" style="margin-top:16px"><div id="houseTable"></div></div>
+</section>
+
+<section id="laporan" class="page">
+<h2>Laporan</h2>
+<div class="notice">Data sistem disimpan pada pelayar/peranti ini. Gunakan eksport untuk membuat salinan sandaran.</div>
+<div class="toolbar"><button class="primary" onclick="exportData()">⬇ Eksport Data JSON</button><button class="small" onclick="window.print()">🖨 Cetak</button><label style="display:flex;align-items:center;gap:6px"><input type="file" accept=".json" onchange="importData(event)" style="width:auto"> Import JSON</label></div>
+<div class="card"><h3>Ringkasan Pemenang</h3><div id="winnerTable"></div></div>
+</section>
+</main>
+<footer>Sistem Pengurusan Sukan • SK (P) Jalan Yahya Awal</footer>
+
+<script>
+const KEY='skp_jya_sukan_v1';
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ houses:[{id:1,name:'Rumah Hijau',points:0},{id:2,name:'Rumah Biru',points:0},{id:3,name:'Rumah Merah',points:0},{id:4,name:'Rumah Kuning',points:0}],
+ events:[
+ {id:1,code:'100M-P',name:'100 Meter Perempuan',category:'Tahun 4-6',type:'Balapan'},
+ {id:2,code:'200M-P',name:'200 Meter Perempuan',category:'Tahun 4-6',type:'Balapan'},
+ {id:3,code:'LJ-P',name:'Lompat Jauh Perempuan',category:'Tahun 4-6',type:'Padang'},
+ {id:4,code:'4X100-P',name:'4 × 100 Meter Perempuan',category:'Tahun 4-6',type:'Balapan'}],
+ participants:[],results:[]
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function uid(a){return Date.now()+Math.floor(Math.random()*1000)}
+function init(){
+ document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.page));
+ show('dashboard'); fillSelects(); renderAll();
+}
+function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));renderAll()}
+function fillSelects(){
+ pRumah.innerHTML=db.houses.map(h=>`<option value="${h.id}">${esc(h.name)}</option>`).join('');
+ pAcara.innerHTML=db.events.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+ rAcara.innerHTML=db.events.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+ rPeserta.innerHTML=db.participants.map(p=>`<option value="${p.id}">${esc(p.name)} — ${esc(p.idNo)}</option>`).join('');
+}
+function addParticipant(){
+ let name=pNama.value.trim(), idNo=pId.value.trim(), cls=pKelas.value.trim();
+ if(!name||!idNo){alert('Sila isi nama dan ID murid.');return}
+ if(db.participants.some(p=>p.idNo.toLowerCase()===idNo.toLowerCase())){alert('ID murid sudah didaftarkan.');return}
+ db.participants.push({id:uid(),name,idNo,cls,gender:pJantina.value,houseId:+pRumah.value,eventId:+pAcara.value});
+ save();['pNama','pId','pKelas'].forEach(id=>document.getElementById(id).value='');fillSelects();renderAll();alert('Peserta berjaya didaftarkan.')}
+function addEvent(){
+ let code=aKod.value.trim(),name=aNama.value.trim(),cat=aKategori.value.trim();
+ if(!code||!name){alert('Sila isi kod dan nama acara.');return}
+ db.events.push({id:uid(),code,name,category:cat,type:aJenis.value});save();fillSelects();renderAll();aKod.value=aNama.value=aKategori.value=''}
+function addHouse(){
+ let name=rNama.value.trim();if(!name)return;
+ db.houses.push({id:uid(),name,points:+rMata.value||0});save();fillSelects();renderAll();rNama.value='';rMata.value=0}
+function addResult(){
+ if(!rPeserta.value){alert('Tiada peserta.');return}
+ let participant=db.participants.find(p=>p.id==rPeserta.value), event=db.events.find(e=>e.id==rAcara.value);
+ if(!participant||!event)return;
+ db.results.push({id:uid(),eventId:event.id,participantId:participant.id,place:+rTempat.value,note:rCatatan.value.trim()});
+ let pts={1:5,2:3,3:2}[+rTempat.value]||0, h=db.houses.find(x=>x.id==participant.houseId); if(h)h.points+=pts;
+ save();renderAll();rCatatan.value=''}
+function del(arr,id){if(!confirm('Padam rekod ini?'))return;db[arr]=db[arr].filter(x=>x.id!==id);save();fillSelects();renderAll()}
+function renderAll(){fillSelects();renderStats();renderParticipants();renderEvents();renderResults();renderHouses();renderRanking();renderWinners()}
+function renderStats(){stats.innerHTML=`<div class="card stat"><b>${db.participants.length}</b><span>Peserta</span></div><div class="card stat"><b>${db.events.length}</b><span>Acara</span></div><div class="card stat"><b>${db.results.length}</b><span>Keputusan</span></div><div class="card stat"><b>${db.results.filter(r=>r.place===1).length}</b><span>Pemenang Tempat 1</span></div>`}
+function renderParticipants(){
+ let q=(searchP.value||'').toLowerCase(), rows=db.participants.filter(p=>(p.name+' '+p.idNo+' '+p.cls).toLowerCase().includes(q));
+ participantTable.innerHTML=rows.length?`<table><tr><th>Nama</th><th>ID</th><th>Kelas</th><th>Rumah</th><th>Acara</th><th></th></tr>${rows.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.idNo)}</td><td>${esc(p.cls)}</td><td>${esc(db.houses.find(h=>h.id===p.houseId)?.name||'-')}</td><td>${esc(db.events.find(e=>e.id===p.eventId)?.name||'-')}</td><td><button class="danger" onclick="del('participants',${p.id})">Padam</button></td></tr>`).join('')}</table>`:'<div class="empty">Tiada peserta.</div>'}
+function renderEvents(){eventTable.innerHTML=db.events.length?`<table><tr><th>Kod</th><th>Acara</th><th>Kategori</th><th>Jenis</th><th></th></tr>${db.events.map(e=>`<tr><td>${esc(e.code)}</td><td>${esc(e.name)}</td><td>${esc(e.category)}</td><td><span class="badge">${esc(e.type)}</span></td><td><button class="danger" onclick="del('events',${e.id})">Padam</button></td></tr>`).join('')}</table>`:'<div class="empty">Tiada acara.</div>'}
+function renderResults(){resultTable.innerHTML=db.results.length?`<table><tr><th>Acara</th><th>Peserta</th><th>Rumah</th><th>Tempat</th><th>Catatan</th><th></th></tr>${db.results.sort((a,b)=>a.place-b.place).map(r=>{let p=db.participants.find(x=>x.id===r.participantId),e=db.events.find(x=>x.id===r.eventId);return `<tr><td>${esc(e?.name)}</td><td>${esc(p?.name)}</td><td>${esc(db.houses.find(h=>h.id===p?.houseId)?.name)}</td><td>${r.place===1?'🥇':r.place===2?'🥈':'🥉'} ${r.place}</td><td>${esc(r.note)}</td><td><button class="danger" onclick="del('results',${r.id})">Padam</button></td></tr>`}).join('')}</table>`:'<div class="empty">Belum ada keputusan.</div>'}
+function renderHouses(){houseTable.innerHTML=`<table><tr><th>Rumah</th><th>Mata</th><th></th></tr>${db.houses.sort((a,b)=>b.points-a.points).map(h=>`<tr><td>${esc(h.name)}</td><td><b>${h.points}</b></td><td><button class="danger" onclick="del('houses',${h.id})">Padam</button></td></tr>`).join('')}</table>`}
+function renderRanking(){let arr=[...db.houses].sort((a,b)=>b.points-a.points);dashRanking.innerHTML=arr.length?`<table><tr><th>Kedudukan</th><th>Rumah</th><th>Mata</th></tr>${arr.map((h,i)=>`<tr><td>${i+1}</td><td>${esc(h.name)}</td><td>${h.points}</td></tr>`).join('')}</table>`:'<div class="empty">Tiada rumah sukan.</div>'}
+function renderWinners(){winnerTable.innerHTML=db.results.filter(r=>r.place===1).length?`<table><tr><th>Acara</th><th>Pemenang</th><th>Rumah</th><th>Catatan</th></tr>${db.results.filter(r=>r.place===1).map(r=>{let p=db.participants.find(x=>x.id===r.participantId),e=db.events.find(x=>x.id===r.eventId);return `<tr><td>${esc(e?.name)}</td><td>🥇 ${esc(p?.name)}</td><td>${esc(db.houses.find(h=>h.id===p?.houseId)?.name)}</td><td>${esc(r.note)}</td></tr>`}).join('')}</table>`:'<div class="empty">Belum ada pemenang tempat pertama.</div>'}
+function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='data-sukan-skp-jalan-yahya-awal.json';a.click();URL.revokeObjectURL(a.href)}
+function importData(ev){let f=ev.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{try{let x=JSON.parse(rd.result);if(!x.houses||!x.events||!x.participants||!x.results)throw Error();db=x;save();fillSelects();renderAll();alert('Data berjaya diimport.')}catch(e){alert('Fail JSON tidak sah.')}};rd.readAsText(f)}
+init();
+</script>
+</body>
+</html>
